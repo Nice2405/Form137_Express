@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     });
 
   } catch (error) {
-    console.log(error);
+    console.error("REGISTER ERROR:", error);
 
     return NextResponse.json(
       {
