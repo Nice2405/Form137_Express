@@ -328,6 +328,7 @@ export default function Form137Express() {
 
         let reqs = await stGet<RequestItem[]>("f137_requests", [] as RequestItem[]);
         try {
+          console.log("LOGIN BUTTON CLICKED");
           const res = await fetch("/api/requests");
           if (res.ok) {
             const data = await res.json();

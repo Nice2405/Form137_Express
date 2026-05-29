@@ -24,14 +24,21 @@ export async function POST(req: Request) {
       VALUES ($1, $2, $3, $4, $5)
       RETURNING *
       `,
-      [fullName, email, password, role, program]
+      [
+        fullName,
+        email.trim().toLowerCase(),
+        password,
+        role,
+        program,
+      ]
     );
 
-    console.log("USER INSERTED:", result.rows);
+    console.log("INSERT RESULT:", result.rows);
 
     return NextResponse.json({
       success: true,
       message: "Registered successfully",
+      user: result.rows[0],
     });
 
   } catch (error) {
@@ -40,7 +47,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         success: false,
-        error: String(error),
+        message: "Registration failed",
       },
       { status: 500 }
     );
