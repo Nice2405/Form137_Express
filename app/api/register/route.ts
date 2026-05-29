@@ -5,15 +5,20 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
+    console.log("BODY:", body);
+
     const { email, password, role } = body;
 
-    await pool.query(
+    const result = await pool.query(
       `
       INSERT INTO users (email, password, role)
       VALUES ($1, $2, $3)
+      RETURNING *
       `,
       [email, password, role]
     );
+
+    console.log("INSERT SUCCESS:", result.rows);
 
     return NextResponse.json({
       success: true,
@@ -26,7 +31,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         success: false,
-        error: "Server error",
+        error: String(error),
       },
       { status: 500 }
     );
