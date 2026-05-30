@@ -75,6 +75,8 @@ export async function PUT(req: Request) {
   try {
     const body = await req.json();
 
+    console.log("PUT BODY:", body);
+
     const result = await pool.query(
       `
       UPDATE requests
@@ -84,6 +86,9 @@ export async function PUT(req: Request) {
       `,
       [body.status, body.id]
     );
+
+    console.log("UPDATED ROW:", result.rows);
+
 
     if (result.rows.length === 0) {
       return NextResponse.json(
