@@ -600,6 +600,18 @@ function finishGoogleLogin(user: RegisteredUser) {
   }
 
   async function handleStaffUpdate(id: number | string, status: RequestStatus) {
+
+    await fetch("/api/requests", {
+  method: "PUT",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    id,
+    status,
+  }),
+});
+
     const r = requests.find(x => x.id === id);
     syncReqs(prev => prev.map(req => req.id === id ? { ...req, status } : req));
     if (r) {
