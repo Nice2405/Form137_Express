@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const result = await pool.query(
+    const requestResult = await pool.query(
       `
       INSERT INTO requests
       (
@@ -50,7 +50,17 @@ export async function POST(req: Request) {
       ]
     );
 
-    return NextResponse.json(result.rows[0]);
+    await pool.query(
+      `
+      INSERT INTO notifications (message)
+      VALUES ($1)
+      `,
+      [
+        `📄 New request: ${body.documentType} from ${body.studentName}`,
+      ]
+    );
+
+    return NextResponse.json(requestResult.rows[0]);
   } catch (error) {
     console.error("REQUEST ERROR:", error);
 
@@ -72,10 +82,7 @@ export async function PUT(req: Request) {
       WHERE id = $2
       RETURNING *
       `,
-      [
-        body.status,
-        body.id,
-      ]
+      [body.status, body.id]
     );
 
     if (result.rows.length === 0) {
@@ -85,7 +92,19 @@ export async function PUT(req: Request) {
       );
     }
 
-    return NextResponse.json(result.rows[0]);
+    const updatedRequest = result.rows[0];
+
+    await pool.query(
+      `
+      INSERT INTO notifications (message)
+      VALUES ($1)
+      `,
+      [
+        `✅ ${updatedRequest.document_type} for ${updatedRequest.student_name} marked as ${body.status}`,
+      ]
+    );
+
+    return NextResponse.json(updatedRequest);
   } catch (error) {
     console.error("UPDATE REQUEST ERROR:", error);
 
