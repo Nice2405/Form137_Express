@@ -599,21 +599,28 @@ function finishGoogleLogin(user: RegisteredUser) {
     syncReqs(prev => prev.filter(x => x.id !== id));
   }
 
-  async function handleStaffUpdate(id: number | string, status: RequestStatus) {
+  async function handleStaffUpdate(
+  id: number | string,
+  status: RequestStatus
+) {
+  await fetch("/api/requests", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id,
+      status,
+    }),
+  });
 
-    await fetch("/api/requests", {
-  method: "PUT",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    id,
-    status,
-  }),
+  const r = requests.find((x) => x.id === id);
+
+  syncReqs((prev) => {
+  return prev.map((req) =>
+    req.id === id ? { ...req, status } : req
+  );
 });
-
-    const r = requests.find(x => x.id === id);
-    syncReqs(prev => prev.map(req => req.id === id ? { ...req, status } : req));
     if (r) {
       const icons = { Approved: "✅", Processing: "🔄", Rejected: "❌", "Pending Approval": "⏳" };
       addNotif(`${icons[status]} ${r.type} from ${r.studentName || r.student} marked as ${status}`);
